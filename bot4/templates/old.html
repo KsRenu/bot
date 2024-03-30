@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team 8 chatbot</title>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: rgb(0, 0, 0);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        #chat-container {
+            background-color: black;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        #chat-log {
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #user-input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            width: 20%;
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .user-message {
+            background-color: #4CAF50;
+            color: white;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            align-self: flex-end;
+            max-width: 70%;
+        }
+
+        .bot-message {
+            background-color: #fff;
+            color: #333;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            align-self: flex-start;
+            max-width: 70%;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Team 8 CB</h1>
+        <div id="chat-log"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <input type="file" id="pdf-input">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var userMessage = document.getElementById("user-input").value;
+            var userFile = document.getElementById("pdf-input").files[0];
+            var formData = new FormData();
+            formData.append('message', userMessage);
+            if (userFile) {
+                formData.append('file', userFile);
+            }
+
+            var chatLog = document.getElementById("chat-log");
+            chatLog.innerHTML += '<div class="user-message">' + userMessage + '</div>';
+
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var botResponse = xhr.responseText;
+                    chatLog.innerHTML += '<div class="bot-message">' + botResponse + '</div>';
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }
+            };
+            xhr.open("POST", "/get", true);
+            xhr.send(formData);
+        }
+    </script>
+</body>
+</html>
