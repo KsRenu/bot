@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot and PDF Reader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        
+        .chat-container,
+        .pdf-container {
+            width: 45%;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #chat-log {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .user-message,
+        .bot-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .user-message {
+            background-color: #d9edf7;
+        }
+        
+        .bot-message {
+            background-color: #dff0d8;
+        }
+        
+        #user-input {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        
+        #send-button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        
+        #inputForm label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        #inputForm input[type="file"],
+        #inputForm input[type="text"],
+        #inputForm button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        
+        #resultContainer {
+            margin-top: 20px;
+        }
+        
+        #resultContainer h2 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="heading">Team 8 Chatbot</h1>
+
+<div class="container">
+    <div class="chat-container">
+        <h1>Chatbot</h1>
+
+        <div id="chat-log"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+
+    <div class="pdf-container">
+        <h1>PDF Reader</h1>
+
+        <form id="inputForm" method="POST" enctype="multipart/form-data">
+            <label for="file">Upload PDF:</label>
+            <input type="file" id="file" name="file" accept=".pdf" required>
+            
+            <label for="query">Enter Query:</label>
+            <input type="text" id="query" name="query" required>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <div id="resultContainer">
+            <h2>Result:</h2>
+            <p id="result"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Your JavaScript code here
+        document.getElementById("inputForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            var formData = new FormData();
+            var fileInput = document.getElementById('file');
+            var queryInput = document.getElementById('query');
+    
+            formData.append('file', fileInput.files[0]);
+            formData.append('query', queryInput.value);
+    
+            fetch('/process_data', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").innerText = data.result;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    function sendMessage() {
+            var userMessage = document.getElementById("user-input").value;
+            document.getElementById("user-input").value = "";
+    
+            var chatLog = document.getElementById("chat-log");
+            chatLog.innerHTML += '<div class="user-message">' + userMessage + '</div>';
+    
+            // Make an AJAX request to get the bot's response
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var botResponse = xhr.responseText;
+                    chatLog.innerHTML += '<div class="bot-message">' + botResponse + '</div>';
+                    chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
+                }
+            };
+            xhr.open("GET", "/get?msg=" + encodeURIComponent(userMessage), true);
+            xhr.send();
+        }
+</script>
+
+</body>
+</html>
