@@ -1,0 +1,14 @@
+tensorflow
+requests
+os
+flask
+langchain_community
+nltk
+langchain_google_genai
+werkzeug
+json
+pickle
+numpy
+keras
+random
+
